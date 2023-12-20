@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subscriptions', function (Blueprint $table) {
+        Schema::create('olx_links', function (Blueprint $table) {
             $table->id();
-            $table->string('email');
-            $table->string('olx_url');
-            $table->foreign('olx_url')->references('url')->on('olx_links');
+            $table->string('url')->unique();
+            $table->integer('price');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subscriptions');
+        Schema::dropIfExists('olx_links');
     }
 };

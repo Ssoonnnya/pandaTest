@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Subscriptions;
+use App\Models\olxLink;
 use GuzzleHttp\Client;
 
 class ParserController extends Controller
@@ -24,11 +25,28 @@ class ParserController extends Controller
             libxml_clear_errors();
 
             $xpath = new \DOMXPath($dom);
-            $element = $xpath->query('//div[@data-testid="ad-price-container"]');
+            $priceContainer = $xpath->query('//div[@data-testid="ad-price-container"]');
+            $h3Price= $xpath->query('.//h3', $priceContainer->item(0));
 
-                if ($element->length > 0) {
+                if ($h3Price->length > 0) {
 
-                    echo $element->item(0)->textContent;
+                    $newPrice =  $h3Price->item(0)->textContent;
+
+                    $parts = explode(' ', $newPrice);
+                    $newPriceInt = intval($parts[0]);
+
+                    $previousPrice = olxLink::where('url', $url)->value('price');
+
+                    if ($previousPrice !== $newPriceInt) {
+
+                        echo "Ціна змінилося: $newPriceInt" ;
+
+                        olxLink::updateOrCreate([
+                            'url' => $url,
+                            'price' => $newPriceInt
+                        ]);
+                    }
+
                 } else {
                     echo "Not found";
                 }
