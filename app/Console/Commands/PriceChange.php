@@ -69,6 +69,9 @@ class PriceChange extends Command
                             'url' => $url,
                             'price' => $newPriceInt
                         ]);
+
+                        $this->sendEmailToUser($link->email, $url, $newPriceInt);
+
                     }
 
                 } else {
@@ -79,5 +82,18 @@ class PriceChange extends Command
             }
 
         }
+    }
+    protected function sendEmailToUser($recipient, $url, $newPrice)
+    {
+        $mailgun = Mailgun::create(config('services.mailgun.secret'));
+
+        $mailgun->messages()->send(config('services.mailgun.domain'), [
+            'from' => config('mail.from.address'),
+            'to' => $recipient,
+            'subject' => 'Ціна змінилася',
+            'html' => view('email.send-email', compact('url', 'newPrice'))->render(),
+        ]);
+
+        echo "Email notification sent to $recipient";
     }
 }
