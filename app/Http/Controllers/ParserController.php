@@ -10,6 +10,6 @@ use GuzzleHttp\Client;
 class ParserController extends Controller
 {
     public function index(Request $request) {
-
+        echo('hello world');
     }
 }
