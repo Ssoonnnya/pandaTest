@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('link_id');
+            $table->foreign('link_id')->references('id')->on('olx_links');
             $table->string('email');
             $table->string('olx_url');
-            $table->foreign('olx_url')->references('url')->on('olx_links');
             $table->timestamps();
         });
     }
