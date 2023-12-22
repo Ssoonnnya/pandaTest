@@ -36,5 +36,8 @@ Route::get('/subscription/store', [SubscriptionsController::class, 'store'])->na
 
 Route::get('/parser', [ParserController::class, 'index']);
 
+Route::get('/verify-email/{token}', [VerificationController::class, 'verify'])->name('email.verify');
+
+
 
 require __DIR__.'/auth.php';

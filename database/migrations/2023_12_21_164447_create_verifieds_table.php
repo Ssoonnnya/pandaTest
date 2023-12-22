@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subscriptions', function (Blueprint $table) {
+        Schema::create('verifieds', function (Blueprint $table) {
             $table->id();
-            $table->text('email');
-            $table->enum('status', ['pending', 'verified', 'unsubscribed'])->default('pending');
-            $table->string('olx_url');
+            $table->string('verified_email');
+            $table->string('token')->unique();
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subscriptions');
+        Schema::dropIfExists('verifieds');
     }
 };

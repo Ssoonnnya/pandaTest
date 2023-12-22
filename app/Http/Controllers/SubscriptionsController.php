@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Subscriptions;
 use Illuminate\Http\Request;
+use App\Models\Verified;
 
 class SubscriptionsController extends Controller
 {
@@ -12,59 +13,59 @@ class SubscriptionsController extends Controller
         return view('subscription.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'email' => 'required|email',
-            'olx_url' => 'required|url'
+            'olx_url' => 'required|url',
+        ]);
+        dd($validated);
+
+        $email = $request->get('email');
+        $olxUrl = $request->get('olx_url');
+
+        $isVerified = $this->isEmailVerified($email);
+
+        if ($isVerified) {
+            Subscriptions::create([
+                'email' => $email,
+                'olx_url' => $olxUrl,
+                'status' => 'verified',
+            ]);
+
+        } else {
+            $this->sendVerificationToUser($email);
+        }
+    }
+
+
+    private function isEmailVerified($email)
+    {
+        return Verified::where('verified_email', $email)->exists();
+    }
+
+    protected function sendVerificationToUser($recipient)
+    {
+        $verificationToken = str_random(32);
+
+        Verified::create([
+            'verified_email' => $recipient,
+            'token' => $verificationToken,
         ]);
 
-        Subscriptions::create([
-            'email' => $request->get('email'),
-            'olx_url' => $request->get('olx_url')
+        $verificationLink = route('email.verify', ['token' => $verificationToken]);
+
+        $mailgun = Mailgun::create(config('services.mailgun.secret'));
+
+        $mailgun->messages()->send(config('services.mailgun.domain'), [
+            'from' => config('mail.from.address'),
+            'to' => $recipient,
+            'subject' => 'Підтвердження електронної адреси.',
+            'html' => view('email.verification', compact('verificationLink'))->render(),
         ]);
+
+        echo "Verification email sent to $recipient";
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(subscriptions $subscriptions)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(subscriptions $subscriptions)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, subscriptions $subscriptions)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(subscriptions $subscriptions)
-    {
-        //
-    }
 }

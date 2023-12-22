@@ -5,15 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Subscriptions extends Model
+class Verified extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-
-        'email',
-        'olx_url',
-        'status',
-
+        'verified_email',
+        'token'
     ];
 }
