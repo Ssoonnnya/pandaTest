@@ -14,29 +14,32 @@ class SubscriptionsController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'olx_url' => 'required|url',
-        ]);
-        dd($validated);
+{
+    $validated = $request->validate([
+        'email' => 'required|email',
+        'olx_url' => 'required|url',
+    ]);
 
-        $email = $request->get('email');
-        $olxUrl = $request->get('olx_url');
+    $email = $request->get('email');
+    $olxUrl = $request->get('olx_url');
 
-        $isVerified = $this->isEmailVerified($email);
+    $subscription = Subscriptions::create([
+        'email' => $email,
+        'olx_url' => $olxUrl,
+        'status' => 'pending',
+    ]);
 
-        if ($isVerified) {
-            Subscriptions::create([
-                'email' => $email,
-                'olx_url' => $olxUrl,
-                'status' => 'verified',
-            ]);
+    $isVerified = $this->isEmailVerified($email);
 
-        } else {
-            $this->sendVerificationToUser($email);
-        }
+    if ($isVerified) {
+
+        $subscription->update(['status' => 'verified']);
+    } else {
+
+        $this->sendVerificationToUser($email);
     }
+}
+
 
 
     private function isEmailVerified($email)
